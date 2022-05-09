@@ -4,10 +4,12 @@
 
 package db
 
-import ()
+import (
+	"github.com/cridenour/go-postgis"
+)
 
 type Restaurant struct {
 	ID       int64
 	Name     string
-	Location interface{}
+	Location postgis.PointS
 }

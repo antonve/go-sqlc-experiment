@@ -1,5 +1,8 @@
 -- name: ListRestaurants :many
-select *
+select
+  id,
+  name,
+  GeomFromEWKB(location) as location
 from restaurants
 order by name;
 
@@ -7,6 +10,6 @@ order by name;
 insert into restaurants (
   name, location
 ) values (
-  $1, $2
+  sqlc.arg('name'), GeomFromEWKB(sqlc.arg('location'))
 )
-returning $1;
+returning id;

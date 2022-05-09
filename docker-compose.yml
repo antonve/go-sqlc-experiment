@@ -15,3 +15,14 @@ services:
       POSTGRES_DB: experiment
     logging:
       driver: none
+  pgweb:
+    container_name: pgweb
+    image: sosedoff/pgweb
+    ports:
+      - '8081:8081'
+    links:
+      - postgis:postgis
+    environment:
+      - DATABASE_URL=postgres://root:hunter2@postgis:5432/experiment?sslmode=disable
+    depends_on:
+      - postgis

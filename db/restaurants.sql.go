@@ -13,9 +13,9 @@ const createRestaurant = `-- name: CreateRestaurant :one
 insert into restaurants (
   name, location
 ) values (
-  $1, $2
+  $1, GeomFromEWKB($2)
 )
-returning $1
+returning id
 `
 
 type CreateRestaurantParams struct {
@@ -23,28 +23,37 @@ type CreateRestaurantParams struct {
 	Location interface{}
 }
 
-func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantParams) (interface{}, error) {
+func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, createRestaurant, arg.Name, arg.Location)
-	var column_1 interface{}
-	err := row.Scan(&column_1)
-	return column_1, err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const listRestaurants = `-- name: ListRestaurants :many
-select id, name, location
+select
+  id,
+  name,
+  GeomFromEWKB(location) as location
 from restaurants
 order by name
 `
 
-func (q *Queries) ListRestaurants(ctx context.Context) ([]Restaurant, error) {
+type ListRestaurantsRow struct {
+	ID       int64
+	Name     string
+	Location interface{}
+}
+
+func (q *Queries) ListRestaurants(ctx context.Context) ([]ListRestaurantsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listRestaurants)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Restaurant
+	var items []ListRestaurantsRow
 	for rows.Next() {
-		var i Restaurant
+		var i ListRestaurantsRow
 		if err := rows.Scan(&i.ID, &i.Name, &i.Location); err != nil {
 			return nil, err
 		}

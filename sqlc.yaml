@@ -7,4 +7,4 @@ packages:
     queries: "./db/queries/"
 overrides:
   - db_type: "geometry"
-    go_type: "github.com/cridenour/go-postgis.Point"
+    go_type: "github.com/cridenour/go-postgis.PointS"
