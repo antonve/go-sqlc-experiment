@@ -1,12 +1,12 @@
 version: "3.9"  # optional since v1.27.0
 services:
-  test:
+  dev:
     image: golang:1.18
     volumes:
       - .:/code
       - /tmp/go:/go
     working_dir: /code
-    command: bash -c "pwd && go get -d -v && go test -v ./..."
+    tty: true
   postgis:
     image: postgis/postgis
     environment:
