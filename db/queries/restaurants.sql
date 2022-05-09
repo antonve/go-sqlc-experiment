@@ -1,4 +1,4 @@
--- name: GetRestaurants :many
+-- name: ListRestaurants :many
 select *
 from restaurants
 order by name;
