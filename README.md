@@ -6,6 +6,7 @@ Personal opinion about `sqlc`.
 
 * Solid code generation
 * Write SQL statements as-is, no need for a complex ORM query builder
+* It actually checks if the queries are valid when generating code, which allows for catching errors early in the dev process
 * The generated code is straightforward to use
 * Works well with existing migration tooling such as [go-migrate](https://github.com/golang-migrate/migrate)
 * Documentation is ok, but not that extensive
