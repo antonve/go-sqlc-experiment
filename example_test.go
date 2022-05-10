@@ -28,24 +28,29 @@ func ExampleSqlc() {
 
 	queries := db.New(psql)
 
-	// create a restaurant
-	insertedRestaurantId, err := queries.CreateRestaurant(ctx, db.CreateRestaurantParams{
-		Name:     "CoCo Ichibanya Ebisu",
-		Location: postgis.PointS{SRID: 4326, X: 35.64699825984844, Y: 139.71194575396922},
-	})
-	if err != nil {
-		log.Fatalf("cannot create restaurant: %v", err)
-	}
+	// create restaurants
+	cocoId := createRestaurant(queries, "CoCo Ichibanya Ebisu", 35.64699825984844, 139.71194575396922)
 
 	// list all restaurants
 	restaurants, err := queries.ListRestaurants(ctx)
 	if err != nil {
 		log.Fatalf("cannot list all restaurants: %v", err)
 	}
-	fmt.Println(insertedRestaurantId, restaurants)
+	fmt.Println(cocoId, restaurants)
 
 	// Output:
 	// 1 [{1 CoCo Ichibanya Ebisu 0101000020E6100000194FC7D6D0D241405D3A7642C8766140}]
+}
+
+func createRestaurant(queries *db.Queries, name string, long, lat float64) int64 {
+	id, err := queries.CreateRestaurant(context.Background(), db.CreateRestaurantParams{
+		Name:     name,
+		Location: postgis.PointS{SRID: 4326, X: long, Y: lat},
+	})
+	if err != nil {
+		log.Fatalf("cannot create restaurant: %v", err)
+	}
+	return id
 }
 
 func runMigrations(psql *sql.DB) {
