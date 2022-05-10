@@ -67,3 +67,48 @@ func (q *Queries) ListRestaurants(ctx context.Context) ([]ListRestaurantsRow, er
 	}
 	return items, nil
 }
+
+const listRestaurantsNearby = `-- name: ListRestaurantsNearby :many
+select
+  id,
+  name,
+  GeomFromEWKB(location) as location
+from restaurants
+where
+  ST_Distance(location, GeomFromEWKB($1)::geometry, false) < $2::int
+order by id asc
+`
+
+type ListRestaurantsNearbyParams struct {
+	Origin      interface{}
+	MaxDistance int32
+}
+
+type ListRestaurantsNearbyRow struct {
+	ID       int64
+	Name     string
+	Location interface{}
+}
+
+func (q *Queries) ListRestaurantsNearby(ctx context.Context, arg ListRestaurantsNearbyParams) ([]ListRestaurantsNearbyRow, error) {
+	rows, err := q.db.QueryContext(ctx, listRestaurantsNearby, arg.Origin, arg.MaxDistance)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListRestaurantsNearbyRow
+	for rows.Next() {
+		var i ListRestaurantsNearbyRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Location); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
